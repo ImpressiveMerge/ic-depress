@@ -23,8 +23,11 @@ import java.util.List;
 import javax.xml.bind.JAXBException;
 import org.impressivecode.depress.mr.googlemetrics.GoogleMetricsEntriesParser;
 import org.impressivecode.depress.mr.googlemetrics.GoogleMetricsXmlResult.MetricResultScope;
-
+import org.impressivecode.depress.mr.googlemetrics.GoogleMetricsXmlResult.MetricResultScope.MetricResult;
 import org.junit.Test;
+import org.knime.core.data.DataRow;
+import org.knime.core.data.def.DoubleCell;
+import static org.impressivecode.depress.common.Cells.doubleOrMissingCell;
 /**
  * 
  * @author Zuzanna Pacholczyk, Capgemini Polska
@@ -37,4 +40,13 @@ public class GoogleMetricsParserTest {
 	        List<MetricResultScope> results = GoogleMetricsEntriesParser.unmarshalResults(getClass().getResource("google.xml").getPath());
 	        assertEquals(results.size(), 65);
 	    }
+	 
+	 @Test
+	    public void shouldCreateAppropriateRow() throws JAXBException {
+	        List<MetricResultScope> results = GoogleMetricsEntriesParser.unmarshalResults(getClass().getResource("google.xml").getPath());
+            List<MetricResult> score = results.get(0).getMetricResult();
+            String className = results.get(0).getScope();
+            DataRow row = GoogleMetricsTableFactory.createTableRow(className, score, (long) 0);
+            assertEquals(((DoubleCell)row.getCell(1)).getDoubleValue(), 0.76, 0.00);
+	}
 }
